@@ -10,7 +10,13 @@ export const pool = new pg.Pool({
   connectionString: config.databaseUrl,
   ssl: { rejectUnauthorized: false },
   max: 10,
+  keepAlive: true,
+  idleTimeoutMillis: 30_000,
 });
+
+// Supabase (pooler) puede cerrar conexiones inactivas. Sin este handler, el evento
+// 'error' de una conexión caída tumba todo el proceso de Node.
+pool.on('error', (err) => console.warn(`[DB] conexión inactiva descartada: ${err.message}`));
 
 export type Db = Pick<pg.PoolClient, 'query'>;
 
@@ -44,15 +50,22 @@ export async function query<T extends pg.QueryResultRow = any>(
 /** Ejecuta `fn` dentro de una transacción; hace ROLLBACK si lanza o si devuelve { rollback: true }. */
 export async function withTransaction<T>(fn: (tx: pg.PoolClient) => Promise<T & { rollback?: boolean }>): Promise<T> {
   const client = await pool.connect();
+  // Mientras la conexión está prestada, pool.on('error') no la cubre: se escucha aquí.
+  let broken: Error | undefined;
+  const onError = (err: Error) => { broken = err; };
+  client.on('error', onError);
   try {
     await client.query('BEGIN');
     const result = await fn(client);
     await client.query(result?.rollback ? 'ROLLBACK' : 'COMMIT');
     return result;
   } catch (err) {
-    await client.query('ROLLBACK');
+    broken ??= err as Error;
+    await client.query('ROLLBACK').catch(() => {});
     throw err;
   } finally {
-    client.release();
+    client.off('error', onError);
+    // release(err) destruye la conexión en vez de devolverla rota al pool.
+    client.release(broken);
   }
 }
