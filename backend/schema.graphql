@@ -1,0 +1,402 @@
+"""
+Afirmative Pill — contrato GraphQL único entre clientes y backend (Zero-REST).
+
+Organización CQRS del contrato:
+  • Query        → lado de LECTURA. Resuelve contra proyecciones optimizadas (medication_catalog, order_summaries).
+  • Mutation     → lado de ESCRITURA. Cada campo es un COMANDO que expresa una intención de negocio
+                   y devuelve un Payload con errores de dominio tipados (no excepciones genéricas).
+  • Subscription → notificaciones cuando una proyección cambia (consistencia eventual en tiempo real).
+"""
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+
+# =====================================================================
+# SCALARS PERSONALIZADOS
+# =====================================================================
+
+"Instante en formato ISO-8601 con zona horaria, p. ej. 2026-09-24T18:30:00.000Z"
+scalar DateTime
+
+"Fecha de calendario ISO-8601 sin hora, p. ej. 2026-09-24"
+scalar Date
+
+"Valor monetario en pesos colombianos (COP) como entero no negativo, sin decimales."
+scalar Money
+
+"Entero estrictamente mayor que cero (cantidades, límites de paginación)."
+scalar PositiveInt
+
+# =====================================================================
+# ENUMS
+# =====================================================================
+
+"Ciclo de vida operacional de una orden."
+enum OrderStatus {
+  "Orden creada y stock reservado; esperando validación de fórmula y/o confirmación de pago."
+  PENDING_APPROVAL
+  "Fórmula validada (si aplica) y pago confirmado. Lista para despacho."
+  APPROVED
+  "La farmacia despachó la orden."
+  DISPATCHED
+  "Orden cancelada por el paciente o por rechazo de la fórmula. El stock fue liberado."
+  CANCELLED
+}
+
+"Estado de la fórmula médica asociada a una orden."
+enum PrescriptionStatus {
+  "Ningún ítem de la orden exige fórmula (venta libre / OTC)."
+  NOT_REQUIRED
+  "Fórmula recibida; en revisión por el químico farmacéutico."
+  SUBMITTED
+  "Fórmula verificada y aceptada."
+  VALIDATED
+  "Fórmula inválida o vencida. La orden se cancela."
+  REJECTED
+}
+
+"Nivel de disponibilidad para mostrar al paciente sin exponer cifras exactas si no se desea."
+enum StockLevel {
+  IN_STOCK
+  LOW_STOCK
+  OUT_OF_STOCK
+}
+
+enum MedicationSortField {
+  NAME
+  PRICE
+  STOCK
+}
+
+enum SortDirection {
+  ASC
+  DESC
+}
+
+"Códigos estables de error de dominio para que el cliente reaccione programáticamente."
+enum UserErrorCode {
+  VALIDATION_FAILED
+  NOT_FOUND
+  OUT_OF_STOCK
+  EMPTY_CART
+  PRESCRIPTION_REQUIRED
+  INVALID_STATE_TRANSITION
+}
+
+# =====================================================================
+# LECTURA — TIPOS DEL READ MODEL
+# =====================================================================
+
+type Medication {
+  id: ID!
+  sku: String!
+  "Nombre comercial."
+  name: String!
+  "Principio activo (DCI)."
+  activeIngredient: String!
+  "Concentración, p. ej. '500 mg'."
+  dosage: String!
+  "Forma farmacéutica y empaque, p. ej. 'Caja x 20 tabletas'."
+  presentation: String!
+  price: Money!
+  "Unidades disponibles según la última proyección (puede ir ligeramente atrasado respecto al write model)."
+  stock: Int!
+  stockLevel: StockLevel!
+  requiresPrescription: Boolean!
+  "Indicaciones clínicas."
+  description: String!
+  "Resuelto con DataLoader (batch por request)."
+  category: Category!
+  "Resuelto con DataLoader (batch por request)."
+  manufacturer: Manufacturer!
+}
+
+"Categoría terapéutica."
+type Category {
+  id: ID!
+  name: String!
+  slug: String!
+  medicationCount: Int!
+  "Resuelto con DataLoader: todas las categorías pedidas se cargan en una sola consulta."
+  medications(limit: PositiveInt = 20): [Medication!]!
+}
+
+"Laboratorio fabricante."
+type Manufacturer {
+  id: ID!
+  name: String!
+  medications(limit: PositiveInt = 20): [Medication!]!
+}
+
+type MedicationPage {
+  items: [Medication!]!
+  totalCount: Int!
+  hasMore: Boolean!
+}
+
+type Patient {
+  id: ID!
+  fullName: String!
+  documentId: String!
+  email: String!
+}
+
+type CartItem {
+  medication: Medication!
+  quantity: PositiveInt!
+  lineTotal: Money!
+}
+
+type Cart {
+  id: ID!
+  items: [CartItem!]!
+  itemCount: Int!
+  subtotal: Money!
+  "true si al menos un ítem exige fórmula médica: el checkout pedirá PrescriptionInput."
+  requiresPrescription: Boolean!
+  prescriptionRequiredFor: [Medication!]!
+}
+
+"Línea de la proyección de una orden. El precio quedó congelado al momento de la compra."
+type OrderLine {
+  medication: Medication!
+  quantity: PositiveInt!
+  unitPrice: Money!
+  subtotal: Money!
+}
+
+type StatusChange {
+  status: OrderStatus!
+  at: DateTime!
+  note: String
+}
+
+"""
+PROYECCIÓN de lectura de una orden (tabla order_summaries).
+Se construye de forma asíncrona a partir de los eventos de dominio, por lo que
+puede no existir aún justo después de ejecutar placeOrder (consistencia eventual).
+"""
+type OrderSummary {
+  id: ID!
+  status: OrderStatus!
+  prescriptionStatus: PrescriptionStatus!
+  "Explicación legible del último cambio (p. ej. motivo de rechazo o cancelación)."
+  statusNote: String
+  totalAmount: Money!
+  itemCount: Int!
+  items: [OrderLine!]!
+  statusHistory: [StatusChange!]!
+  placedAt: DateTime!
+  updatedAt: DateTime!
+  "true si la orden ya no cambiará de estado (DISPATCHED o CANCELLED)."
+  isFinal: Boolean!
+  patient: Patient!
+}
+
+# =====================================================================
+# INPUTS
+# =====================================================================
+
+input MedicationFilter {
+  "Búsqueda libre sin tildes ni mayúsculas sobre nombre comercial, principio activo, categoría y laboratorio."
+  search: String
+  activeIngredient: String
+  categoryId: ID
+  manufacturerId: ID
+  requiresPrescription: Boolean
+  inStockOnly: Boolean = false
+  minPrice: Money
+  maxPrice: Money
+}
+
+input MedicationSort {
+  field: MedicationSortField! = NAME
+  direction: SortDirection! = ASC
+}
+
+input PageInput {
+  limit: PositiveInt! = 20
+  offset: Int! = 0
+}
+
+input AddToCartInput {
+  medicationId: ID!
+  quantity: PositiveInt! = 1
+}
+
+input UpdateCartItemInput {
+  medicationId: ID!
+  "Nueva cantidad absoluta."
+  quantity: PositiveInt!
+}
+
+input RemoveFromCartInput {
+  medicationId: ID!
+}
+
+"Información de soporte de la fórmula médica."
+input PrescriptionInput {
+  doctorName: String!
+  "Registro médico del prescriptor, formato RM-12345."
+  doctorLicense: String!
+  "Fecha de emisión; debe tener máximo 30 días y no estar en el futuro."
+  issuedAt: Date!
+  diagnosis: String
+  "URL del soporte escaneado (opcional)."
+  documentUrl: String
+}
+
+input PlaceOrderInput {
+  "Obligatoria si algún ítem del carrito tiene requiresPrescription = true."
+  prescription: PrescriptionInput
+}
+
+input CancelOrderInput {
+  orderId: ID!
+  reason: String
+}
+
+input DispatchOrderInput {
+  orderId: ID!
+}
+
+# =====================================================================
+# ESCRITURA — ERRORES DE DOMINIO Y PAYLOADS
+# =====================================================================
+
+"Error de negocio esperado. Se devuelve en el payload, no como error de GraphQL."
+interface UserError {
+  code: UserErrorCode!
+  message: String!
+  "Ruta del input que causó el error, p. ej. ['prescription', 'issuedAt']."
+  field: [String!]
+}
+
+type ValidationError implements UserError {
+  code: UserErrorCode!
+  message: String!
+  field: [String!]
+}
+
+type NotFoundError implements UserError {
+  code: UserErrorCode!
+  message: String!
+  field: [String!]
+}
+
+type EmptyCartError implements UserError {
+  code: UserErrorCode!
+  message: String!
+  field: [String!]
+}
+
+"Invariante: no se vende lo que no hay en bodega."
+type OutOfStockError implements UserError {
+  code: UserErrorCode!
+  message: String!
+  field: [String!]
+  medication: Medication!
+  requested: Int!
+  available: Int!
+}
+
+"Invariante: medicamentos con fórmula no se venden sin soporte médico."
+type PrescriptionRequiredError implements UserError {
+  code: UserErrorCode!
+  message: String!
+  field: [String!]
+  medications: [Medication!]!
+}
+
+"Invariante: la máquina de estados de la orden solo permite transiciones válidas."
+type InvalidStateTransitionError implements UserError {
+  code: UserErrorCode!
+  message: String!
+  field: [String!]
+  currentStatus: OrderStatus!
+  attemptedStatus: OrderStatus!
+}
+
+type CartPayload {
+  cart: Cart
+  errors: [UserError!]!
+}
+
+"""
+Acuse del comando placeOrder. Solo confirma que el comando fue aceptado y la orden
+quedó registrada (write model). El detalle legible vive en la proyección:
+consúltalo con Query.order(id) o suscríbete a Subscription.orderUpdated(orderId).
+"""
+type PlaceOrderPayload {
+  orderId: ID
+  status: OrderStatus
+  acceptedAt: DateTime
+  "Carrito nuevo (vacío) tras el checkout, para actualizar la caché del cliente."
+  cart: Cart
+  errors: [UserError!]!
+}
+
+type OrderCommandPayload {
+  orderId: ID
+  status: OrderStatus
+  errors: [UserError!]!
+}
+
+# =====================================================================
+# OPERACIONES RAÍZ
+# =====================================================================
+
+type Query {
+  "Catálogo paginado con filtros facetados. Pide solo los campos que la vista necesita."
+  medications(
+    filter: MedicationFilter
+    sort: MedicationSort = { field: NAME, direction: ASC }
+    page: PageInput = { limit: 20, offset: 0 }
+  ): MedicationPage!
+
+  "Ficha técnica de un medicamento."
+  medication(id: ID!): Medication
+
+  categories: [Category!]!
+  manufacturers: [Manufacturer!]!
+
+  "Paciente autenticado (en la demo, un paciente fijo inyectado en el contexto)."
+  me: Patient!
+
+  "Carrito activo del paciente."
+  cart: Cart!
+
+  "Proyección de una orden. null mientras el proyector aún no la ha materializado."
+  order(id: ID!): OrderSummary
+
+  myOrders(status: OrderStatus, page: PageInput = { limit: 20, offset: 0 }): [OrderSummary!]!
+}
+
+type Mutation {
+  "Agrega unidades de un medicamento al carrito (valida existencia y stock disponible)."
+  addToCart(input: AddToCartInput!): CartPayload!
+  "Fija la cantidad de un ítem del carrito."
+  updateCartItem(input: UpdateCartItemInput!): CartPayload!
+  removeFromCart(input: RemoveFromCartInput!): CartPayload!
+
+  """
+  Convierte el carrito en una orden. En UNA transacción: exige fórmula si aplica,
+  reserva stock de forma atómica (bloqueo de filas) y registra el evento OrderPlaced.
+  """
+  placeOrder(input: PlaceOrderInput = {}): PlaceOrderPayload!
+
+  "Cancela una orden PENDING_APPROVAL o APPROVED y libera el stock reservado."
+  cancelOrder(input: CancelOrderInput!): OrderCommandPayload!
+
+  "Operación de farmacia: marca como despachada una orden APPROVED."
+  dispatchOrder(input: DispatchOrderInput!): OrderCommandPayload!
+}
+
+type Subscription {
+  "Emite la proyección actualizada cada vez que cambia una orden concreta."
+  orderUpdated(orderId: ID!): OrderSummary!
+  "Emite cualquier cambio en las órdenes del paciente actual."
+  myOrdersUpdated: OrderSummary!
+}

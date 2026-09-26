@@ -1,0 +1,51 @@
+id,sku,name,active_ingredient,category,dosage,presentation,price,stock,requires_prescription,manufacturer,description
+1,MED-001,Acetaminofén Forte,Paracetamol,Analgésicos,500 mg,Caja x 20 tabletas,9500,120,FALSE,Laboratorios MK,Alivio del dolor de cabeza y cuadros febriles leves a moderados.
+2,MED-002,Ibuprofeno Max,Ibuprofeno,Antiinflamatorios,800 mg,Caja x 30 tabletas,18200,85,FALSE,Genfar,Antiinflamatorio no esteroideo para dolores articulares y musculares.
+3,MED-003,Amoxicilina Clavulanato,Amoxicilina + Ácido Clavulánico,Antibióticos,875/125 mg,Caja x 14 tabletas,46000,40,TRUE,Sandoz,Antibiótico de amplio espectro para infecciones respiratorias bacterianas.
+4,MED-004,Loratadina Antiallerg,Loratadina,Antihistamínicos,10 mg,Caja x 10 tabletas,8900,150,FALSE,Tecnoquímicas,Tratamiento sintomático de rinitis alérgica y urticaria crónica.
+5,MED-005,Omeprazol GastroProtect,Omeprazol,Gastrointestinal,20 mg,Caja x 28 cápsulas,14500,110,FALSE,Lafrancol,Inhibidor de la bomba de protones para reflujo gástrico y úlceras.
+6,MED-006,Losartán Potásico,Losartán,Cardiovascular,50 mg,Caja x 30 tabletas,16800,95,TRUE,Genfar,Antihipertensivo antagonista de los receptores de angiotensina II.
+7,MED-007,Metformina Clorhidrato,Metformina,Endocrinología,850 mg,Caja x 30 tabletas,21000,75,TRUE,Merck,Hipoglucemiante oral para control de glucemia en diabetes tipo 2.
+8,MED-008,Atorvastatina Lipid,Atorvastatina,Cardiovascular,20 mg,Caja x 30 tabletas,32500,60,TRUE,Pfizer,Regulador lipídico para reducir colesterol LDL y triglicéridos.
+9,MED-009,Cetirizina Dihidrocloruro,Cetirizina,Antihistamínicos,10 mg,Caja x 10 tabletas,11200,130,FALSE,Bayer,Antihistamínico de segunda generación para cuadros alérgicos agudos.
+10,MED-010,Azitromicina Unidosis,Azitromicina,Antibióticos,500 mg,Caja x 3 tabletas,28900,50,TRUE,Genfar,Macrólido indicado en infecciones del tracto respiratorio y piel.
+11,MED-011,Esomeprazol Dual,Esomeprazol,Gastrointestinal,40 mg,Caja x 14 cápsulas,39000,45,FALSE,AstraZeneca,Tratamiento avanzado de esofagitis erosiva por reflujo gastroesofágico.
+12,MED-012,Clonazepam Sedafast,Clonazepam,Psiquiatría / Neuro,2 mg,Caja x 30 tabletas,27400,25,TRUE,Roche,Benzodiacepina indicada en trastornos de pánico y crisis convulsivas.
+13,MED-013,Diclofenaco Sódico,Diclofenaco,Antiinflamatorios,50 mg,Caja x 20 tabletas,12300,105,FALSE,Laboratorios MK,Analgésico antiinflamatorio para dolor agudo postraumático.
+14,MED-014,Sertralina Anxiofree,Sertralina,Psiquiatría / Neuro,50 mg,Caja x 30 tabletas,48500,35,TRUE,Pfizer,Antidepresivo inhibidor selectivo de la recaptación de serotonina.
+15,MED-015,Salbutamol Aerosol HFA,Salbutamol,Respiratorio,100 mcg/dosis,Inhalador 200 dosis,24900,80,FALSE,GlaxoSmithKline,Broncodilatador de acción rápida para crisis asmáticas y broncoespasmo.
+16,MED-016,Ciprofloxacino Bacterial,Ciprofloxacino,Antibióticos,500 mg,Caja x 10 tabletas,26000,42,TRUE,Bayer,Fluoroquinolona de amplio espectro para infecciones urinarias complejas.
+17,MED-017,Hidroclorotiazida Diur,Hidroclorotiazida,Cardiovascular,25 mg,Caja x 30 tabletas,9800,90,TRUE,Genfar,Diurético tiazídico coadyuvante en el manejo de la hipertensión arterial.
+18,MED-018,Naproxeno Sódico,Naproxeno,Antiinflamatorios,550 mg,Caja x 12 tabletas,15400,115,FALSE,Bayer,Alivio potente del dolor inflamatorio osteomuscular y dental.
+19,MED-019,Dexametasona Depo,Dexametasona,Corticosteroides,4 mg/2 ml,Ampolla inyectable x 1,8500,65,TRUE,Laboratorios MK,Corticoide sistémico potente para crisis alérgicas e inflamatorias severas.
+20,MED-020,Levotiroxina Sódica,Levotiroxina,Endocrinología,100 mcg,Caja x 50 tabletas,31000,70,TRUE,Abbott,Hormona tiroidea sintética de reemplazo en hipotiroidismo primario.
+21,MED-021,Trimebutina Antispas,Trimebutina,Gastrointestinal,200 mg,Caja x 30 tabletas,34500,55,FALSE,Sanofi,Regulador de la motilidad digestiva para síndrome de colon irritable.
+22,MED-022,Fluconazol Dermic,Fluconazol,Antimicóticos,150 mg,Caja x 2 cápsulas,19800,85,FALSE,Pfizer,Antifúngico triazólico para candidiasis mucocutánea y sistémica.
+23,MED-023,Enalapril Maleato,Enalapril,Cardiovascular,20 mg,Caja x 30 tabletas,11500,100,TRUE,Genfar,Inhibidor de la ECA para tratamiento de falla cardíaca e hipertensión.
+24,MED-024,Clorfeniramina Maleato,Clorfeniramina,Antihistamínicos,4 mg,Caja x 20 tabletas,6500,140,FALSE,Laboratorios MK,Antihistamínico clásico para rinitis estacional y prurito alérgico.
+25,MED-025,Butilbromuro de Hioscina,Hioscina,Gastrointestinal,10 mg,Caja x 10 grageas,13800,90,FALSE,Boehringer Ingelheim,Antiespasmódico visceral para cólicos abdominales y renales.
+26,MED-026,Tramadol Gotas,Tramadol Clorhidrato,Analgésicos,100 mg/ml,Frasco gotero 10 ml,32000,30,TRUE,Grunenthal,Analgésico opioide atípico para dolor moderado a severo refractario.
+27,MED-027,Pregabalina Neuropain,Pregabalina,Psiquiatría / Neuro,75 mg,Caja x 28 cápsulas,56000,45,TRUE,Pfizer,Modulador neuronal para neuropatía diabética y fibromialgia.
+28,MED-028,Lansoprazol Gastric,Lansoprazol,Gastrointestinal,30 mg,Caja x 14 cápsulas,22500,65,FALSE,Tecnoquímicas,Inhibidor gástrico para cicatrización de úlcera duodenal activa.
+29,MED-029,Metoprolol Tartrato,Metoprolol,Cardiovascular,50 mg,Caja x 30 tabletas,14200,80,TRUE,AstraZeneca,Betabloqueador selectivo para arritmias y cardiopatía isquémica.
+30,MED-030,Cefalexina Monohidrato,Cefalexina,Antibióticos,500 mg,Caja x 24 cápsulas,33500,50,TRUE,Laboratorios MK,Cefalosporina de primera generación para infecciones de piel y tejidos.
+31,MED-031,Aciclovir Dermacare,Aciclovir,Antivirales,5%,Tubo crema x 15 g,16700,75,FALSE,Genfar,Antiviral tópico específico para herpes simple labial y genital inicial.
+32,MED-032,Insulina Glargina Pen,Insulina Glargina,Endocrinología,100 UI/ml,Pluma precargada 3 ml,89000,20,TRUE,Sanofi,Análogo de insulina de acción ultraprolongada para diabetes mellitus.
+33,MED-033,Meloxicam Flex,Meloxicam,Antiinflamatorios,15 mg,Caja x 10 tabletas,17900,90,FALSE,Laboratorios MK,Antiinflamatorio preferencial COX-2 para osteoartritis y artritis.
+34,MED-034,Alprazolam Calmpill,Alprazolam,Psiquiatría / Neuro,0.5 mg,Caja x 30 tabletas,29000,25,TRUE,Pfizer,Tranquilizante menor para crisis de angustia y ansiedad generalizada.
+35,MED-035,Budesonida PulmoInhaler,Budesonida,Respiratorio,200 mcg/dosis,Inhalador 200 dosis,49500,40,TRUE,AstraZeneca,Corticoide inhalado para control de mantenimiento en asma persistente.
+36,MED-036,Carvedilol HeartCare,Carvedilol,Cardiovascular,25 mg,Caja x 30 tabletas,24000,60,TRUE,Roche,Betabloqueador no selectivo vasodilatador en insuficiencia cardíaca.
+37,MED-037,Furosemida Renal,Furosemida,Cardiovascular,40 mg,Caja x 30 tabletas,8700,110,TRUE,Genfar,Diurético de asa de alta potencia para edemas periféricos y pulmonares.
+38,MED-038,Ketoconazol Medipill,Ketoconazol,Antimicóticos,2%,Frasco champú 120 ml,28500,50,FALSE,Janssen,Tratamiento antimicótico para dermatitis seborreica y pitiriasis.
+39,MED-039,Montelukast Broncho,Montelukast,Respiratorio,10 mg,Caja x 30 tabletas,44000,55,FALSE,Merck,Antagonista de receptores de leucotrienos para prevención asmática.
+40,MED-040,Prednisona Immunocort,Prednisona,Corticosteroides,20 mg,Caja x 30 tabletas,22000,70,TRUE,Laboratorios MK,Inmunosupresor y antiinflamatorio esteroideo sistémico de rescate.
+41,MED-041,Domperidona Gastrofluid,Domperidona,Gastrointestinal,10 mg,Caja x 20 tabletas,15800,80,FALSE,Sanofi,Procinético y antiemético para náuseas y vaciamiento gástrico lento.
+42,MED-042,Claritromicina Protect,Claritromicina,Antibióticos,500 mg,Caja x 10 tabletas,41000,35,TRUE,Abbott,Antibiótico macrólido coadyuvante en erradicación de H. pylori.
+43,MED-043,Simvastatina Stat,Simvastatina,Cardiovascular,20 mg,Caja x 30 tabletas,13500,90,TRUE,Genfar,Estatina para control primario de dislipidemias e hipercolesterolemia.
+44,MED-044,Ácido Acetilsalicílico Cardio,Ácido Acetilsalicílico,Cardiovascular,100 mg,Caja x 30 tabletas,11000,160,FALSE,Bayer,Antiagregante plaquetario profiláctico para eventos cardiovasculares.
+45,MED-045,Miconazol Crema Vag,Miconazol,Antimicóticos,2%,Tubo crema x 40 g + aplicadores,21500,45,FALSE,Genfar,Antimicótico ginecológico local para vulvovaginitis fúngica.
+46,MED-046,Glibenclamida Diabet,Glibenclamida,Endocrinología,5 mg,Caja x 30 tabletas,9200,85,TRUE,Laboratorios MK,Sulfonilurea estimulante de secreción de insulina pancreática.
+47,MED-047,Betametasona Valerato,Betametasona,Dermatológico,0.10%,Tubo crema x 30 g,14900,70,TRUE,Genfar,Corticosteroide dermatológico tópico para dermatosis inflamatorias.
+48,MED-048,Sucralfato Gastromucosa,Sucralfato,Gastrointestinal,1 g,Caja x 20 sobres granulado,37500,40,FALSE,Laboratorios MK,Citoprotector gástrico de barrera mecánica sobre úlceras pépticas.
+49,MED-049,Levofloxacino Bactrimax,Levofloxacino,Antibióticos,750 mg,Caja x 7 tabletas,58000,30,TRUE,Sanofi,Quinolona respiratoria de alta dosis para neumonía bacteriana adquirida.
+50,MED-050,Electrolitos Orales Pediátricos,Sales de Rehidratación Oral,Pediatría / Sueros,Electrolitos balanceados,Frasco x 500 ml solución oral,8500,120,FALSE,Abbott,Rehidratación oral para prevención de deshidratación por diarrea o vómito.
